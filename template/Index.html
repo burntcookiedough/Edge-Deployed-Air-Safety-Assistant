@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AETHER | Predictive Safety</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            /* Palette: Clinical, Paper, Ink */
+            --bg-body: #F9FAFB;
+            --bg-surface: #FFFFFF;
+            --line-color: #E5E7EB;
+            
+            --text-primary: #111827;
+            --text-secondary: #6B7280;
+            --text-tertiary: #9CA3AF;
+
+            /* Functional Colors */
+            --accent-primary: #2563EB; /* Royal Blue - System */
+            --accent-hazard: #EF4444; /* Red - Danger */
+            --accent-safe: #10B981;   /* Emerald - Safe */
+            --accent-warn: #F59E0B;   /* Amber - Caution */
+
+            --spacing: 1.5rem;
+            --radius: 0px; /* Sharp corners for professional look */
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-primary);
+            font-family: 'Outfit', sans-serif;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* --- TYPOGRAPHY UTILS --- */
+        .mono { font-family: 'Space Mono', monospace; }
+        .label { 
+            font-size: 0.75rem; 
+            text-transform: uppercase; 
+            letter-spacing: 0.1em; 
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+        .value { font-size: 2rem; font-weight: 300; letter-spacing: -0.02em; }
+        .unit { font-size: 0.9rem; color: var(--text-tertiary); margin-left: 4px; }
+        .h-divider { height: 1px; background: var(--line-color); width: 100%; margin: 1rem 0; }
+
+        /* --- LAYOUT GRID --- */
+        .grid-container {
+            display: grid;
+            grid-template-columns: 320px 1fr 320px;
+            grid-template-rows: 70px 1fr 180px;
+            height: 100%;
+            width: 100%;
+            background: var(--bg-surface);
+        }
+
+        /* --- BORDERS (The "Hairline" Look) --- */
+        .border-r { border-right: 1px solid var(--line-color); }
+        .border-b { border-bottom: 1px solid var(--line-color); }
+        .border-t { border-top: 1px solid var(--line-color); }
+
+        /* --- HEADER --- */
+        header {
+            grid-column: 1 / -1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 var(--spacing);
+            background: var(--bg-surface);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--accent-primary);
+            border-radius: 50%;
+        }
+
+        .brand-text {
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            font-size: 1.1rem;
+        }
+
+        /* --- SIDEBARS (METRICS) --- */
+        .panel {
+            padding: var(--spacing);
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            background: var(--bg-surface);
+        }
+
+        .metric-card {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        /* --- MAIN VIEW (VISION) --- */
+        .vision-stage {
+            background: #F3F4F6; /* Slight contrast for the "video" area */
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .camera-feed {
+            width: 90%;
+            height: 80%;
+            background: #fff;
+            border: 1px solid var(--line-color);
+            position: relative;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02); /* Ultra subtle lift */
+        }
+
+        .camera-ui-layer {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            padding: 1rem;
+        }
+
+        .cam-tag {
+            background: #fff;
+            padding: 4px 8px;
+            border: 1px solid var(--line-color);
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            display: inline-block;
+        }
+
+        /* Bounding Box Logic */
+        .bounding-box {
+            position: absolute;
+            width: 180px;
+            height: 180px;
+            border: 2px solid var(--accent-primary);
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            display: none; /* Hidden initially */
+            background: rgba(37, 99, 235, 0.05); /* Very light blue tint */
+        }
+
+        .bounding-label {
+            position: absolute;
+            top: -24px;
+            left: -2px;
+            background: var(--accent-primary);
+            color: white;
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            font-weight: 600;
+        }
+
+        /* --- STATUS INDICATORS --- */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: #F3F4F6;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--text-tertiary);
+        }
+        
+        .status-dot.active { background: var(--accent-safe); }
+        .status-dot.alert { background: var(--accent-hazard); }
+
+        /* --- LOGGING (FOOTER) --- */
+        .ledger-panel {
+            grid-column: 1 / -1;
+            padding: 0 var(--spacing);
+            background: var(--bg-surface);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .ledger-header {
+            height: 40px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid var(--line-color);
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+            letter-spacing: 0.05em;
+        }
+
+        .ledger-content {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            padding: 1rem 0;
+            font-size: 0.85rem;
+        }
+
+        .log-row {
+            display: grid;
+            grid-template-columns: 120px 200px 1fr;
+            padding: 0.4rem 0;
+            border-bottom: 1px dashed var(--line-color);
+        }
+
+        .log-row:last-child { border-bottom: none; }
+        
+        .hash { color: var(--accent-primary); opacity: 0.7; }
+        
+        /* --- ANIMATIONS --- */
+        .pulse { animation: pulse-anim 1.5s infinite; }
+        
+        @keyframes pulse-anim {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        /* --- DYNAMIC STATES --- */
+        .state-safe { color: var(--accent-safe); }
+        .state-danger { color: var(--accent-hazard); }
+        .state-system { color: var(--accent-primary); }
+
+        /* Responsive */
+        @media (max-width: 1000px) {
+            .grid-container {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto;
+                height: auto;
+                overflow-y: auto;
+            }
+            body { overflow-y: auto; height: auto; }
+            .vision-stage { height: 300px; }
+            .panel { gap: 1rem; border-bottom: 1px solid var(--line-color); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="grid-container">
+        
+        <header class="border-b">
+            <div class="brand">
+                <div class="brand-dot"></div>
+                <div class="brand-text">AETHER <span style="font-weight:300; color:var(--text-tertiary)">/ MONITOR</span></div>
+            </div>
+            <div class="status-badge">
+                <div class="status-dot active" id="connection-dot"></div>
+                <span id="connection-text">Network: Polygon PoS (Connected)</span>
+            </div>
+        </header>
+
+        <aside class="panel border-r">
+            <div class="label">Primary Sensors</div>
+            
+            <div class="metric-card">
+                <span class="label">PM2.5 Concentration</span>
+                <div>
+                    <span class="value mono" id="pm-val">12</span>
+                    <span class="unit">µg/m³</span>
+                </div>
+                <div style="height:4px; width:100%; background:#F3F4F6; margin-top:5px; border-radius:2px;">
+                    <div id="pm-bar" style="height:100%; width:10%; background:var(--accent-safe); border-radius:2px; transition: width 0.5s;"></div>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <span class="label">Total VOCs</span>
+                <div>
+                    <span class="value mono" id="voc-val">45</span>
+                    <span class="unit">ppb</span>
+                </div>
+                <div style="height:4px; width:100%; background:#F3F4F6; margin-top:5px; border-radius:2px;">
+                    <div id="voc-bar" style="height:100%; width:15%; background:var(--accent-safe); border-radius:2px; transition: width 0.5s;"></div>
+                </div>
+            </div>
+
+            <div class="h-divider"></div>
+
+            <div class="metric-card">
+                <span class="label">HVAC / Ventilation</span>
+                <div>
+                    <span class="value mono" id="fan-val">0</span>
+                    <span class="unit">% Load</span>
+                </div>
+                <div class="label" id="fan-status" style="margin-top:5px; color:var(--text-tertiary);">Passive Mode</div>
+            </div>
+        </aside>
+
+        <main class="vision-stage">
+            <div class="camera-feed">
+                <div class="camera-ui-layer">
+                    <div style="display:flex; justify-content:space-between;">
+                        <span class="cam-tag mono">CAM_01 LIVE</span>
+                        <span class="cam-tag mono">Model: YOLOv8_Nano</span>
+                    </div>
+
+                    <div class="bounding-box" id="detect-box">
+                        <div class="bounding-label mono">SOLDERING_ACTIVITY (98%)</div>
+                    </div>
+
+                    <div style="position:absolute; bottom:1rem; left:1rem;">
+                        <span class="label mono" style="background:white; padding:2px 5px;">Latency: 14ms</span>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <aside class="panel border-l" style="border-left: 1px solid var(--line-color);">
+            <div class="label">Predictive Analysis</div>
+
+            <div class="metric-card">
+                <span class="label">Visual Classification</span>
+                <span class="value" id="class-val" style="font-size: 1.5rem;">No Hazards</span>
+                <span class="unit" style="margin-left:0;">Confidence: <span class="mono" id="conf-val">--</span></span>
+            </div>
+
+            <div class="h-divider"></div>
+
+            <div class="metric-card">
+                <span class="label">Safety Logic State</span>
+                <div id="logic-badge" class="status-badge" style="width:fit-content; background:var(--bg-body); color:var(--text-secondary);">
+                    Monitoring
+                </div>
+            </div>
+
+            <div class="metric-card" style="margin-top:auto;">
+                <span class="label">Last Intervention</span>
+                <span class="mono" style="font-size:0.9rem;" id="last-intervention">None</span>
+            </div>
+        </aside>
+
+        <section class="ledger-panel border-t">
+            <div class="ledger-header">
+                <span style="width:120px;">TIMESTAMP</span>
+                <span style="width:200px;">EVENT TYPE</span>
+                <span>TX HASH (POLYGON)</span>
+            </div>
+            <div class="ledger-content mono" id="log-feed">
+                <div class="log-row">
+                    <span style="color:var(--text-tertiary);">09:00:01</span>
+                    <span>SYSTEM_BOOT</span>
+                    <span class="hash">0x8a7...f1e2</span>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <script>
+        // --- SIMULATION LOGIC ---
+
+        const dom = {
+            pm: document.getElementById('pm-val'),
+            pmBar: document.getElementById('pm-bar'),
+            voc: document.getElementById('voc-val'),
+            vocBar: document.getElementById('voc-bar'),
+            fan: document.getElementById('fan-val'),
+            fanStatus: document.getElementById('fan-status'),
+            box: document.getElementById('detect-box'),
+            classVal: document.getElementById('class-val'),
+            confVal: document.getElementById('conf-val'),
+            logicBadge: document.getElementById('logic-badge'),
+            lastInt: document.getElementById('last-intervention'),
+            logs: document.getElementById('log-feed')
+        };
+
+        let isSafe = true;
+
+        function getHash() {
+            return '0x' + Array(6).fill(0).map(() => Math.floor(Math.random()*16).toString(16)).join('') + '...' + Array(4).fill(0).map(() => Math.floor(Math.random()*16).toString(16)).join('');
+        }
+
+        function getTime() {
+            return new Date().toLocaleTimeString('en-GB', { hour12: false });
+        }
+
+        function log(event, type = 'normal') {
+            const row = document.createElement('div');
+            row.className = 'log-row';
+            let color = 'inherit';
+            if(type === 'alert') color = 'var(--accent-hazard)';
+            if(type === 'success') color = 'var(--accent-safe)';
+            
+            row.innerHTML = `
+                <span style="color:var(--text-tertiary);">${getTime()}</span>
+                <span style="color:${color}; font-weight:700;">${event}</span>
+                <span class="hash">${getHash()}</span>
+            `;
+            dom.logs.prepend(row);
+        }
+
+        function setFan(speed) {
+            dom.fan.innerText = speed;
+            if (speed > 0) {
+                dom.fanStatus.innerText = "Active Mitigation";
+                dom.fanStatus.style.color = "var(--accent-primary)";
+                dom.fan.parentElement.classList.add('pulse');
+            } else {
+                dom.fanStatus.innerText = "Passive Mode";
+                dom.fanStatus.style.color = "var(--text-tertiary)";
+                dom.fan.parentElement.classList.remove('pulse');
+            }
+        }
+
+        // --- SCENARIO LOOP ---
+        setInterval(() => {
+            // Background noise for sensors
+            if(isSafe) {
+                dom.pm.innerText = 10 + Math.floor(Math.random() * 5);
+                dom.voc.innerText = 40 + Math.floor(Math.random() * 8);
+                // Reset bars
+                dom.pmBar.style.width = "10%";
+                dom.pmBar.style.background = "var(--accent-safe)";
+                dom.vocBar.style.width = "15%";
+                dom.vocBar.style.background = "var(--accent-safe)";
+            }
+        }, 1000);
+
+        function runSimulation() {
+            // 1. HAZARD DETECTED (Visual Only)
+            setTimeout(() => {
+                isSafe = false;
+                dom.box.style.display = "block";
+                dom.classVal.innerText = "Soldering";
+                dom.classVal.style.color = "var(--accent-warn)";
+                dom.confVal.innerText = "98.4%";
+                
+                dom.logicBadge.innerText = "PREDICTIVE TRIGGER";
+                dom.logicBadge.style.background = "var(--accent-warn)";
+                dom.logicBadge.style.color = "white";
+
+                log("VISUAL_DETECT: SOLDERING", "alert");
+            }, 2000);
+
+            // 2. PRE-EMPTIVE ACTION (Before sensors spike)
+            setTimeout(() => {
+                setFan(100);
+                dom.logicBadge.innerText = "VENTILATION MAX";
+                dom.logicBadge.style.background = "var(--accent-primary)";
+                
+                log("ACTUATOR: FAN_100%", "normal");
+            }, 3000);
+
+            // 3. SENSOR SPIKE (Delayed)
+            setTimeout(() => {
+                let p = 15;
+                let v = 50;
+                const interval = setInterval(() => {
+                    p += 5;
+                    v += 10;
+                    dom.pm.innerText = p;
+                    dom.voc.innerText = v;
+                    
+                    // Update visual bars to show danger
+                    dom.pmBar.style.width = p + "%";
+                    dom.vocBar.style.width = (v/3) + "%"; // scale down
+                    
+                    if(p > 30) {
+                        dom.pmBar.style.background = "var(--accent-hazard)";
+                        dom.vocBar.style.background = "var(--accent-hazard)";
+                    }
+
+                    if (p > 50) clearInterval(interval);
+                }, 200);
+            }, 4500);
+
+            // 4. CLEAR & RESET
+            setTimeout(() => {
+                isSafe = true;
+                dom.box.style.display = "none";
+                dom.classVal.innerText = "No Hazards";
+                dom.classVal.style.color = "var(--text-primary)";
+                dom.confVal.innerText = "--";
+                
+                dom.logicBadge.innerText = "Monitoring";
+                dom.logicBadge.style.background = "#F3F4F6";
+                dom.logicBadge.style.color = "var(--text-secondary)";
+                
+                dom.lastInt.innerText = getTime() + " - Soldering";
+                
+                setFan(0);
+                log("HAZARD_MITIGATED", "success");
+            }, 9000);
+        }
+
+        // Loop the simulation every 15 seconds
+        setInterval(runSimulation, 15000);
+        
+        // Start immediate
+        setTimeout(runSimulation, 1000);
+
+    </script>
+</body>
+</html>

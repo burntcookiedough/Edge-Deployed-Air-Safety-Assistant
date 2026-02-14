@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AETHER | Immutable Ledger</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            /* Palette: Clinical, Paper, Ink */
+            --bg-body: #F9FAFB;
+            --bg-surface: #FFFFFF;
+            --line-color: #E5E7EB;
+            
+            --text-primary: #111827;
+            --text-secondary: #6B7280;
+            --text-tertiary: #9CA3AF;
+
+            --accent-primary: #2563EB; /* Royal Blue */
+            --accent-success: #10B981; /* Emerald */
+            --accent-warn: #F59E0B;    /* Amber */
+            --accent-purple: #7C3AED;  /* Polygon Purple */
+
+            --spacing: 1.5rem;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; outline: none; }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-primary);
+            font-family: 'Outfit', sans-serif;
+            height: 100vh;
+            display: grid;
+            grid-template-columns: 240px 1fr;
+            overflow: hidden;
+        }
+
+        /* --- TYPOGRAPHY --- */
+        .mono { font-family: 'Space Mono', monospace; }
+        .label { 
+            font-size: 0.7rem; 
+            text-transform: uppercase; 
+            letter-spacing: 0.08em; 
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        /* --- UTILS --- */
+        .border-r { border-right: 1px solid var(--line-color); }
+        .border-b { border-bottom: 1px solid var(--line-color); }
+        .flex-center { display: flex; align-items: center; justify-content: center; }
+        .flex-between { display: flex; justify-content: space-between; align-items: center; }
+
+        /* --- SIDEBAR --- */
+        .sidebar {
+            background: var(--bg-surface);
+            display: flex;
+            flex-direction: column;
+            padding: var(--spacing);
+            z-index: 10;
+        }
+        .brand {
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            font-size: 1.1rem;
+            margin-bottom: 3rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .brand-dot { width: 8px; height: 8px; background: var(--accent-primary); border-radius: 50%; }
+        
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 0;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.95rem;
+            margin-bottom: 0.5rem;
+            transition: all 0.2s;
+        }
+        .nav-item:hover { color: var(--text-primary); }
+        .nav-item.active { color: var(--accent-primary); font-weight: 500; }
+
+        /* --- MAIN CONTENT --- */
+        .content-area {
+            display: grid;
+            grid-template-rows: 70px auto 1fr; /* Header - Stats - Table */
+            overflow: hidden;
+        }
+
+        header {
+            background: var(--bg-surface);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 var(--spacing);
+            border-bottom: 1px solid var(--line-color);
+        }
+
+        /* --- STATS BAR --- */
+        .stats-bar {
+            background: var(--bg-body);
+            padding: var(--spacing);
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: var(--spacing);
+            border-bottom: 1px solid var(--line-color);
+        }
+
+        .stat-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--line-color);
+            padding: 1rem 1.2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        /* --- TABLE --- */
+        .table-container {
+            background: var(--bg-surface);
+            overflow-y: auto;
+            position: relative;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+
+        thead {
+            position: sticky;
+            top: 0;
+            background: var(--bg-surface);
+            z-index: 5;
+            box-shadow: 0 1px 0 var(--line-color);
+        }
+
+        th {
+            text-align: left;
+            padding: 1rem var(--spacing);
+            color: var(--text-secondary);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.7rem;
+            letter-spacing: 0.05em;
+        }
+
+        td {
+            padding: 1rem var(--spacing);
+            border-bottom: 1px solid var(--line-color);
+            color: var(--text-primary);
+        }
+
+        tr:hover td {
+            background-color: #F9FAFB;
+        }
+
+        /* Table Specifics */
+        .tx-hash {
+            color: var(--accent-primary);
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .tx-hash:hover { text-decoration: underline; }
+        
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 100px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .status-success { background: #ECFDF5; color: var(--accent-success); }
+        .status-pending { background: #FFFBEB; color: var(--accent-warn); }
+
+        .type-tag {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.75rem;
+            background: #F3F4F6;
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: var(--text-primary);
+        }
+
+        /* Copy Icon */
+        .copy-icon {
+            opacity: 0;
+            margin-left: 8px;
+            font-size: 0.8rem;
+            color: var(--text-tertiary);
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        tr:hover .copy-icon { opacity: 1; }
+
+    </style>
+</head>
+<body>
+
+    <nav class="sidebar border-r">
+        <div class="brand">
+            <div class="brand-dot"></div>
+            <span class="nav-text">AETHER</span>
+        </div>
+
+        <a href="index.html" class="nav-item">
+            <span style="width:20px">◆</span> Live Monitor
+        </a>
+        <a href="analytics.html" class="nav-item">
+            <span style="width:20px">▦</span> Analytics
+        </a>
+        <a href="#" class="nav-item active">
+            <span style="width:20px">≡</span> Safety Ledger
+        </a>
+        <a href="config.html" class="nav-item">
+            <span style="width:20px">⚙</span> Config
+        </a>
+    </nav>
+
+    <main class="content-area">
+        
+        <header>
+            <div class="flex-center" style="gap:10px;">
+                <span class="label" style="color:var(--accent-purple);">NETWORK</span>
+                <span style="font-size:0.9rem; font-weight:500;">Polygon PoS Mainnet</span>
+                <span style="font-size:0.8rem; color:var(--text-tertiary);"> • Block #45,921,002</span>
+            </div>
+            
+            <div class="flex-center" style="gap:15px">
+                <input type="text" placeholder="Search Tx Hash / Event..." style="border:1px solid var(--line-color); padding:8px 12px; font-family:'Space Mono'; font-size:0.8rem; width:250px;">
+                <button style="background:var(--text-primary); color:white; border:none; padding:8px 16px; font-size:0.8rem; cursor:pointer;">EXPORT CSV</button>
+            </div>
+        </header>
+
+        <section class="stats-bar">
+            <div class="stat-card">
+                <span class="label">Total Records</span>
+                <span class="mono" style="font-size:1.5rem;">14,209</span>
+            </div>
+            <div class="stat-card">
+                <span class="label">Contract Address</span>
+                <span class="mono" style="font-size:0.9rem; color:var(--text-secondary);">0x8f2...3a1B</span>
+                <span class="label" style="color:var(--accent-success); margin-top:auto;">VERIFIED</span>
+            </div>
+            <div class="stat-card">
+                <span class="label">Gas Fees (MTD)</span>
+                <span class="mono" style="font-size:1.5rem;">4.2 MATIC</span>
+            </div>
+            <div class="stat-card">
+                <span class="label">Last Sync</span>
+                <div class="flex-between">
+                    <span class="mono" style="font-size:1.2rem;">Live</span>
+                    <div style="width:8px; height:8px; background:var(--accent-success); border-radius:50%; box-shadow:0 0 0 3px #ECFDF5;"></div>
+                </div>
+            </div>
+        </section>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width:120px;">Timestamp</th>
+                        <th style="width:150px;">Event Type</th>
+                        <th>Sensor Data Hash (IPFS)</th>
+                        <th>Action Triggered</th>
+                        <th>Transaction Hash</th>
+                        <th style="width:120px;">Status</th>
+                    </tr>
+                </thead>
+                <tbody id="ledger-body">
+                    </tbody>
+            </table>
+        </div>
+
+    </main>
+
+    <script>
+        // --- DATA GENERATION ---
+
+        const eventTypes = [
+            { name: "HAZARD_DETECT", action: "VENTILATION_MAX", type: "alert" },
+            { name: "ROUTINE_CHECK", action: "LOG_ONLY", type: "normal" },
+            { name: "SENSOR_CALIB", action: "UPDATE_OFFSET", type: "normal" },
+            { name: "SHIFT_START", action: "SYSTEM_ARMED", type: "normal" },
+            { name: "VOC_SPIKE", action: "VENTILATION_MED", type: "alert" }
+        ];
+
+        const tbody = document.getElementById('ledger-body');
+
+        function generateHash() {
+            const chars = '0123456789abcdef';
+            let hash = '0x';
+            for (let i = 0; i < 40; i++) {
+                hash += chars[Math.floor(Math.random() * 16)];
+            }
+            return hash;
+        }
+
+        function truncateHash(hash) {
+            return hash.substring(0, 6) + '...' + hash.substring(hash.length - 4);
+        }
+
+        function createRow(data, isNew = false) {
+            const tr = document.createElement('tr');
+            if (isNew) {
+                tr.style.backgroundColor = "#F0F9FF"; // Light blue flash for new rows
+                setTimeout(() => tr.style.backgroundColor = "transparent", 1000); // Fade out
+                tr.style.transition = "background-color 1s";
+            }
+
+            const statusClass = data.status === 'CONFIRMED' ? 'status-success' : 'status-pending';
+            const statusIcon = data.status === 'CONFIRMED' ? '●' : '○';
+
+            tr.innerHTML = `
+                <td class="mono" style="color:var(--text-secondary);">${data.time}</td>
+                <td><span class="type-tag">${data.event}</span></td>
+                <td class="mono" style="font-size:0.8rem; color:var(--text-tertiary);">
+                    ${truncateHash(generateHash())} 
+                    <span class="copy-icon">📋</span>
+                </td>
+                <td style="font-weight:500;">${data.action}</td>
+                <td class="mono" style="font-size:0.8rem;">
+                    <a href="#" class="tx-hash">${truncateHash(data.tx)}</a>
+                </td>
+                <td>
+                    <span class="status-pill ${statusClass}">
+                        ${statusIcon} ${data.status}
+                    </span>
+                </td>
+            `;
+            return tr;
+        }
+
+        // 1. Initial Population (Past Data)
+        const initialCount = 15;
+        for (let i = 0; i < initialCount; i++) {
+            const randomEvent = eventTypes[Math.floor(Math.random() * eventTypes.length)];
+            const time = new Date(Date.now() - (i * 1000 * 60 * 5)).toLocaleTimeString('en-US', { hour12: false }); // 5 min intervals
+            
+            const rowData = {
+                time: time,
+                event: randomEvent.name,
+                action: randomEvent.action,
+                tx: generateHash(),
+                status: 'CONFIRMED'
+            };
+            tbody.appendChild(createRow(rowData));
+        }
+
+        // 2. Live Simulation
+        setInterval(() => {
+            const randomEvent = eventTypes[Math.floor(Math.random() * eventTypes.length)];
+            const time = new Date().toLocaleTimeString('en-US', { hour12: false });
+            
+            const rowData = {
+                time: time,
+                event: randomEvent.name,
+                action: randomEvent.action,
+                tx: generateHash(),
+                status: 'PENDING' // Starts pending
+            };
+
+            const newRow = createRow(rowData, true);
+            tbody.prepend(newRow);
+
+            // Simulate block confirmation after 3 seconds
+            setTimeout(() => {
+                const badge = newRow.querySelector('.status-pill');
+                badge.className = 'status-pill status-success';
+                badge.innerHTML = '● CONFIRMED';
+            }, 3000);
+
+            // Keep table from getting too long
+            if (tbody.children.length > 50) {
+                tbody.lastElementChild.remove();
+            }
+
+        }, 5000); // New block every 5 seconds
+
+    </script>
+</body>
+</html>

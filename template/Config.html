@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AETHER | Configuration</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            /* Palette: Clinical, Paper, Ink */
+            --bg-body: #F9FAFB;
+            --bg-surface: #FFFFFF;
+            --line-color: #E5E7EB;
+            
+            --text-primary: #111827;
+            --text-secondary: #6B7280;
+            --text-tertiary: #9CA3AF;
+
+            --accent-primary: #2563EB; 
+            --accent-success: #10B981;  
+            --accent-warn: #F59E0B;
+
+            --spacing: 1.5rem;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; outline: none; }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-primary);
+            font-family: 'Outfit', sans-serif;
+            height: 100vh;
+            display: grid;
+            grid-template-columns: 240px 1fr;
+            overflow: hidden;
+        }
+
+        /* --- TYPOGRAPHY --- */
+        .mono { font-family: 'Space Mono', monospace; }
+        .label { 
+            font-size: 0.7rem; 
+            text-transform: uppercase; 
+            letter-spacing: 0.08em; 
+            color: var(--text-secondary);
+            font-weight: 600;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        /* --- UTILS --- */
+        .border-r { border-right: 1px solid var(--line-color); }
+        .flex-between { display: flex; justify-content: space-between; align-items: center; }
+
+        /* --- SIDEBAR (Shared) --- */
+        .sidebar {
+            background: var(--bg-surface);
+            display: flex;
+            flex-direction: column;
+            padding: var(--spacing);
+        }
+        .brand {
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            font-size: 1.1rem;
+            margin-bottom: 3rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .brand-dot { width: 8px; height: 8px; background: var(--accent-primary); border-radius: 50%; }
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 0;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.95rem;
+            margin-bottom: 0.5rem;
+            transition: all 0.2s;
+        }
+        .nav-item:hover { color: var(--text-primary); }
+        .nav-item.active { color: var(--accent-primary); font-weight: 500; }
+
+        /* --- MAIN LAYOUT --- */
+        .content-area {
+            display: grid;
+            grid-template-rows: 70px 1fr;
+            grid-template-columns: 1fr 340px; /* Main Content - Right Sidebar */
+            overflow: hidden;
+        }
+
+        header {
+            grid-column: 1 / -1;
+            background: var(--bg-surface);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 var(--spacing);
+            border-bottom: 1px solid var(--line-color);
+        }
+
+        /* --- FORM ELEMENTS (Minimalist) --- */
+        .control-group { margin-bottom: 2rem; }
+        
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 4px;
+            background: #E5E7EB;
+            border-radius: 2px;
+            margin: 10px 0;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            background: var(--bg-surface);
+            border: 2px solid var(--accent-primary);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        input[type="range"]::-webkit-slider-thumb:hover { background: var(--accent-primary); }
+
+        .toggle-switch {
+            width: 40px;
+            height: 20px;
+            background: #E5E7EB;
+            border-radius: 20px;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 2px; left: 2px;
+            width: 16px; height: 16px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+        .toggle-switch.on { background: var(--accent-success); }
+        .toggle-switch.on::after { transform: translateX(20px); }
+
+        /* --- HARDWARE CARDS --- */
+        .hardware-grid {
+            padding: var(--spacing);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--spacing);
+            overflow-y: auto;
+        }
+
+        .hw-card {
+            background: white;
+            border: 1px solid var(--line-color);
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .hw-status {
+            display: inline-block;
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: var(--accent-success);
+        }
+        .hw-status.warn { background: var(--accent-warn); }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            margin-top: 5px;
+        }
+
+        /* --- RIGHT SIDEBAR: TUNING --- */
+        .tuning-panel {
+            background: var(--bg-surface);
+            border-left: 1px solid var(--line-color);
+            padding: var(--spacing);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 12px;
+            background: var(--text-primary);
+            color: white;
+            border: none;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.8rem;
+            cursor: pointer;
+            margin-top: auto;
+            transition: opacity 0.2s;
+        }
+        .btn-primary:hover { opacity: 0.9; }
+
+        /* --- VISUAL TOPOLOGY (Center) --- */
+        .topology-map {
+            grid-column: 1 / -1; 
+            height: 200px; 
+            border-bottom: 1px solid var(--line-color);
+            background: #FAFAFA;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Simple connecting lines for topology */
+        .topo-node {
+            width: 40px; height: 40px;
+            background: white;
+            border: 1px solid var(--line-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            position: relative;
+            z-index: 2;
+        }
+        .topo-line {
+            position: absolute;
+            height: 1px;
+            background: var(--line-color);
+            z-index: 1;
+        }
+
+    </style>
+</head>
+<body>
+
+    <nav class="sidebar border-r">
+        <div class="brand">
+            <div class="brand-dot"></div>
+            <span class="nav-text">AETHER</span>
+        </div>
+
+        <a href="index.html" class="nav-item">
+            <span style="width:20px">◆</span> Live Monitor
+        </a>
+        <a href="analytics.html" class="nav-item">
+            <span style="width:20px">▦</span> Analytics
+        </a>
+        <a href="#" class="nav-item active">
+            <span style="width:20px">⚙</span> System Config
+        </a>
+
+        <div style="margin-top:auto;">
+            <div class="label">System Uptime</div>
+            <div class="mono" style="font-size:0.8rem; color:var(--text-tertiary);">14d 03h 22m</div>
+        </div>
+    </nav>
+
+    <main class="content-area">
+        
+        <header>
+            <div style="font-size: 0.9rem; font-weight: 500;">Hardware Topology & Calibration</div>
+            <div class="flex-between" style="gap:15px">
+                <span style="font-size:0.8rem; color:var(--text-secondary)">Firmware: v2.4.1 (Stable)</span>
+                <div class="hw-status"></div>
+            </div>
+        </header>
+
+        <div style="display:flex; flex-direction:column; background:#F9FAFB; overflow-y:auto;">
+            
+            <div class="topology-map">
+                <div class="topo-line" style="width: 200px;"></div>
+                <div class="topo-node" style="margin-right: 150px;">☁</div> <div class="topo-node">Hub</div> <div class="topo-node" style="margin-left: 150px;">👁</div> <div style="position:absolute; bottom:10px; font-size:0.7rem; color:var(--text-tertiary)" class="mono">
+                    MESH NETWORK: ACTIVE
+                </div>
+            </div>
+
+            <div class="hardware-grid">
+                
+                <div class="hw-card">
+                    <div class="flex-between">
+                        <span class="label">Primary Compute</span>
+                        <div class="hw-status"></div>
+                    </div>
+                    <div style="font-weight:500;">Edge Node 01 (RPi 5)</div>
+                    <div class="mono" style="font-size:0.8rem; color:var(--text-secondary); margin-top:5px;">
+                        IP: 192.168.1.104
+                    </div>
+                    
+                    <div style="border-top:1px dashed var(--line-color); margin-top:10px; padding-top:10px;">
+                        <div class="stat-row">
+                            <span style="color:var(--text-tertiary)">CPU Load</span>
+                            <span class="mono">24%</span>
+                        </div>
+                        <div class="stat-row">
+                            <span style="color:var(--text-tertiary)">Temp</span>
+                            <span class="mono">42°C</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="hw-card">
+                    <div class="flex-between">
+                        <span class="label">Vision Sensor</span>
+                        <div class="hw-status"></div>
+                    </div>
+                    <div style="font-weight:500;">Cam_Module_V2</div>
+                    
+                    <div style="border-top:1px dashed var(--line-color); margin-top:auto; padding-top:10px;">
+                        <div class="stat-row">
+                            <span style="color:var(--text-tertiary)">Resolution</span>
+                            <span class="mono">1080p</span>
+                        </div>
+                        <div class="stat-row">
+                            <span style="color:var(--text-tertiary)">FPS</span>
+                            <span class="mono">30</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="hw-card">
+                    <div class="flex-between">
+                        <span class="label">Actuator Relay</span>
+                        <div class="hw-status warn"></div> </div>
+                    <div style="font-weight:500;">Vent_Controller_A</div>
+                    
+                    <div style="border-top:1px dashed var(--line-color); margin-top:auto; padding-top:10px;">
+                        <div class="stat-row">
+                            <span style="color:var(--text-tertiary)">State</span>
+                            <span class="mono">Standby</span>
+                        </div>
+                        <div class="stat-row">
+                            <span style="color:var(--text-tertiary)">Last Ping</span>
+                            <span class="mono" style="color:var(--accent-warn)">240ms</span>
+                        </div>
+                    </div>
+                </div>
+
+             </div>
+        </div>
+
+        <aside class="tuning-panel">
+            <h2 style="font-size:1rem; font-weight:500; margin-bottom:2rem;">Parameter Tuning</h2>
+
+            <div class="control-group">
+                <div class="flex-between">
+                    <span class="label">AI Confidence Threshold</span>
+                    <span class="mono" style="font-size:0.8rem;">85%</span>
+                </div>
+                <input type="range" min="0" max="100" value="85">
+                <p style="font-size:0.75rem; color:var(--text-tertiary); margin-top:5px;">
+                    Minimum confidence required to trigger preemptive ventilation.
+                </p>
+            </div>
+
+            <div class="control-group">
+                <div class="flex-between">
+                    <span class="label">VOC Safety Limit</span>
+                    <span class="mono" style="font-size:0.8rem;">50 ppb</span>
+                </div>
+                <input type="range" min="0" max="100" value="50">
+            </div>
+
+            <div class="control-group flex-between">
+                <div>
+                    <span class="label" style="margin:0;">Blockchain Logging</span>
+                    <p style="font-size:0.75rem; color:var(--text-tertiary);">Record events to Polygon</p>
+                </div>
+                <div class="toggle-switch on" onclick="this.classList.toggle('on')"></div>
+            </div>
+
+            <div class="control-group flex-between">
+                <div>
+                    <span class="label" style="margin:0;">Auto-Ventilation</span>
+                    <p style="font-size:0.75rem; color:var(--text-tertiary);">Allow autonomous fan control</p>
+                </div>
+                <div class="toggle-switch on" onclick="this.classList.toggle('on')"></div>
+            </div>
+
+            <button class="btn-primary">DEPLOY CONFIG TO EDGE</button>
+        </aside>
+
+    </main>
+
+</body>
+</html>
